@@ -246,7 +246,7 @@ h6 {
 .sapsap iframe {
   width: 95%;
   height: 650px;
-  border: 30px solid #136ede; /* border with 30px thickness and black color */
+  border: 10px solid #136ede; /* border with 30px thickness and black color */
   border-radius: 30px;     /* optional rounded corners */
   box-shadow: 0 10px 20px rgba(0,0,0,0.3); /* optional shadow for depth */
 }
