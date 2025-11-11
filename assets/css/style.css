@@ -640,14 +640,41 @@ section {
 }
 
 .imgbuttn {
-  width: 65%;
+  width: 90%;
   height: auto;
   border-radius: 8px;
   transition: transform 0.3s;
 }
-
 .imgbuttn:hover {
   transform: scale(1.05);
+}
+/* Image Hover Effect */
+.imgbuttn {
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.imgbuttn:hover {
+  transform: scale(1.05);
+}
+
+#caption {
+  text-align: center;
+  color: #fff;
+  padding: 10px 0;
+  font-size: 18px;
+}
+
+.close {
+  position: absolute;
+  top: 20px;
+  right: 35px;
+  color: #fff;
+  font-size: 40px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.close:hover {
+  color: #bbb;
 }
 
 h5 {
