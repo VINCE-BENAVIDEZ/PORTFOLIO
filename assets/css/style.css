@@ -638,25 +638,6 @@ section {
   z-index: 2;
   opacity: 0;
 }
-
-.imgbuttn {
-  width: 90%;
-  height: auto;
-  border-radius: 8px;
-  transition: transform 0.3s;
-}
-.imgbuttn:hover {
-  transform: scale(1.05);
-}
-/* Image Hover Effect */
-.imgbuttn {
-  cursor: pointer;
-  transition: transform 0.2s;
-}
-.imgbuttn:hover {
-  transform: scale(1.05);
-}
-
 #caption {
   text-align: center;
   color: #fff;

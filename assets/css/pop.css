@@ -5,7 +5,9 @@
     height: 200px;
     cursor: pointer;
     border-radius: 5px;
-    margin: 30px;
+    padding-right: 30px;
+    padding-left: 30px;
+
 }.popup-trigger {
 
   width: 200px;
