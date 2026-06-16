@@ -73,8 +73,8 @@ h6 {
 #header .profile img {
   margin: 10px auto;
   display: block;
-  width: 150px;
-  height: 175px;
+  width: 175px;
+  height: 190px;
   border: 5px solid #2c2f3f;
 }
 
@@ -163,17 +163,14 @@ h6 {
 }
 
 
-    .sapsap {
-        background-color: white;
-    }
-
-
+.sapsap {
+  background-color: white;
+}
 
 @media (max-width: 1199px) {
   #header {
     left: -300px;
   }
-
   #main {
     margin-left: 0;
   }
