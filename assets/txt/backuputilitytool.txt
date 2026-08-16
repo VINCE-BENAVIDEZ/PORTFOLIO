@@ -2,7 +2,7 @@
 setlocal EnableDelayedExpansion
 set "SCRIPT_DIR=%~dp0"
 set "SRC_COUNT=0"
-set "vince=INCE_BENAVIDEZ"
+set "vince=VINCE_BENAVIDEZ"
 color 3
 echo =======================================
 echo.
