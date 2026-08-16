@@ -1,0 +1,181 @@
+@echo off
+setlocal EnableDelayedExpansion
+set "SCRIPT_DIR=%~dp0"
+set "SRC_COUNT=0"
+set "vince=INCE_BENAVIDEZ"
+color 3
+echo =======================================
+echo.
+echo   %vince%_BACKUP_UTILITY_TOOL
+echo   Started: %DATE% %TIME%
+echo.
+echo =======================================
+echo.
+echo.
+echo PLEASE ENTER FOLDER PATH TO BACKUP OR
+echo YOU CAN DRAG FOLDERS HERE ON THE PROMPT
+echo.
+where powershell >nul 2>&1
+if errorlevel 1 (
+    echo [ERROR] 
+    echo PowerShell is required but was not found on this system.
+    exit /b 1
+)
+:InputLoop
+set "INPUT_PATH="
+set /p "INPUT_PATH=Folder path: "
+
+if "!INPUT_PATH!"=="" goto InputDone
+if "!INPUT_PATH:~0,1!!INPUT_PATH:~-1!"=="""" (
+    set "INPUT_PATH=!INPUT_PATH:~1,-1!"
+)
+if not exist "!INPUT_PATH!\" (
+    echo [WARNING] 
+    echo Folder does not exist, skipping: !INPUT_PATH!
+    echo.
+    goto InputLoop
+)
+set /a SRC_COUNT+=1
+set "SRC!SRC_COUNT!=!INPUT_PATH!"
+echo.
+echo =======================================
+echo.
+echo    HERE ARE THE LIST OF DIRECTORY 
+echo      THAT YOU WANTED TO BACKUP
+echo =======================================
+echo.
+:: Display all stored directories
+for /L %%I in (1,1,!SRC_COUNT!) do (
+    call echo %%I. %%SRC%%I%%
+)
+echo.
+echo Press ENTER when you are done.
+echo.
+goto InputLoop
+:InputDone
+set "vince=VINCE_"
+if %SRC_COUNT% EQU 0 (
+    echo [ERROR] 
+    echo No valid folders were entered. Nothing to back up.
+    exit /b 2
+)
+echo.
+echo ==============================================
+echo.
+echo        FOLDERS TO BACK UP: %SRC_COUNT%
+echo.
+echo ==============================================
+echo.
+echo.
+for /L %%i in (1,1,%SRC_COUNT%) do echo   - !SRC%%i!
+echo.
+set "SUCCESS_COUNT=0"
+set "FAIL_COUNT=0"
+set "bena=BENAVIDEZ"
+if not "%vince%%bena%"=="%vince%" (
+    echo OMG.DUDE.HAVE.A.LIFE.AND.DONT.CHANGE.MY.CODE.FOR.FVCK.SAKE
+    timeout /t 20
+) else (
+    echo.
+)
+for /f "usebackq delims=" %%A in (`powershell -NoProfile -Command "(Get-Date).Ticks"`) do set "START_TICKS=%%A"
+for /f "usebackq delims=" %%A in (`powershell -NoProfile -Command "Get-Date -Format 'yyyy-dd-MM'"`) do set "DATESTAMP=%%A"
+set "BACKUP_NAME=%DATESTAMP%_PC_BACKUP"
+set "BACKUP_DIR=%SCRIPT_DIR%%BACKUP_NAME%"
+set "ZIP_PATH=%SCRIPT_DIR%%BACKUP_NAME%.zip"
+echo [INFO] Backup folder : %BACKUP_DIR%
+echo [INFO] Target archive : %ZIP_PATH%
+echo.
+if not exist "%BACKUP_DIR%" (
+    mkdir "%BACKUP_DIR%" 2>nul
+)
+if not exist "%BACKUP_DIR%" (
+    echo [ERROR] 
+    echo Could not create backup directory. Aborting.
+    exit /b 3
+)
+echo.
+echo ==============================================
+echo.
+echo            COPYING SOURCE FOLDERS
+echo.
+echo ==============================================
+echo.
+echo.
+for /L %%i in (1,1,%SRC_COUNT%) do (
+    call :CopyFolder "!SRC%%i!"
+)
+echo.
+echo ==============================================
+echo.
+echo   COPY SUMMARY : 
+echo   SUCCESS = %SUCCESS_COUNT%
+echo   FAILED  = %FAIL_COUNT% 
+echo.
+echo ==============================================
+echo.
+echo.
+if %SUCCESS_COUNT% EQU 0 (
+    echo [ERROR] No folders were copied. Nothing to archive.
+    rmdir /s /q "%BACKUP_DIR%" >nul 2>&1
+    exit /b 4
+)
+echo [INFO] Creating ZIP archive, please wait...
+powershell -NoProfile -Command "Compress-Archive -Path '%BACKUP_DIR%\*' -DestinationPath '%ZIP_PATH%' -CompressionLevel Optimal -Force"
+if not exist "%ZIP_PATH%" (
+    echo [ERROR] ZIP archive creation failed. Backup folder retained at:
+    echo         %BACKUP_DIR%
+    exit /b 5
+)
+echo [SUCCESS] 
+echo Archive created: %ZIP_PATH%
+echo [INFO] Removing temporary backup folder...
+rmdir /s /q "%BACKUP_DIR%"
+if exist "%BACKUP_DIR%" (
+    echo [WARNING] Temporary folder could not be fully removed.
+    echo           Please delete it manually: %BACKUP_DIR%
+)
+for /f "usebackq delims=" %%A in (`powershell -NoProfile -Command "(Get-Date).Ticks"`) do set "END_TICKS=%%A"
+for /f "usebackq delims=" %%A in (`powershell -NoProfile -Command "[TimeSpan]::FromTicks(%END_TICKS%-%START_TICKS%).ToString('hh\:mm\:ss')"`) do set "ELAPSED=%%A"
+echo.
+echo ==============================================
+echo.
+echo   COMPLETE BACK UP REPORT
+echo   Folders copied : %SUCCESS_COUNT%
+echo   Folders failed : %FAIL_COUNT%
+echo   Total time     : %ELAPSED%
+echo.
+echo ==============================================
+echo.
+echo PROGRAM FINISHED PLEASE ENTER ANY KEY TO EXIT.
+timeout /t 60
+if %FAIL_COUNT% GTR 0 (
+    exit /b 6
+)
+exit /b 0
+:CopyFolder
+set "CUR_SRC=%~1"
+if "%CUR_SRC%"=="" goto :eof
+if not exist "%CUR_SRC%\" (
+    echo [WARNING] Source not found, skipping: %CUR_SRC%
+    set /a FAIL_COUNT+=1
+    goto :eof
+)
+echo [COPY] 
+echo %CUR_SRC%
+echo.
+set "DRIVE_LETTER=%CUR_SRC:~0,1%"
+set "REL_PATH=%CUR_SRC:~3%"
+set "DEST_PATH=%BACKUP_DIR%\%DRIVE_LETTER%\%REL_PATH%"
+robocopy "%CUR_SRC%" "%DEST_PATH%" /E /COPY:DAT /DCOPY:DAT /R:2 /W:2 /MT:8 /NP /NFL /NDL /NJH >nul
+if !ERRORLEVEL! GEQ 8 (
+    echo [FAILED] 
+    echo Copy error for: %CUR_SRC% ^(robocopy code !ERRORLEVEL!^)
+    set /a FAIL_COUNT+=1
+) else (
+    echo [OK] 
+    echo Copied: %CUR_SRC%
+    echo.
+    set /a SUCCESS_COUNT+=1
+)
+goto :eof
